@@ -12,6 +12,10 @@ from streamlit_js_eval import streamlit_js_eval
 # =====================================================
 
 st.set_page_config(
+    page_title="Sheela Physiocare",
+    layout="centered"
+)
+
 hide_streamlit_style = """
 <style>
 #MainMenu {
@@ -32,11 +36,6 @@ st.markdown(
     hide_streamlit_style,
     unsafe_allow_html=True
 )
-    page_title="Sheela Physiocare",
-    page_icon="images/logo.png",
-    layout="centered"
-)
-
 # =====================================================
 # LOGO + TITLE
 # =====================================================
