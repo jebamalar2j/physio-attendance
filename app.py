@@ -155,6 +155,46 @@ st.title("Physio Attendance System")
         if patient.empty:
             st.error("Patient not found")
             st.stop()
+# -------------------------
+# PATIENT DETAILS
+# -------------------------
+st.subheader("Patient Details")
+
+st.write(
+    f"Name: {patient.iloc[0]['name']}"
+)
+
+remaining_sessions = (
+    patient.iloc[0]['sessions_total']
+    - patient.iloc[0]['sessions_used']
+)
+
+st.write(
+    f"Sessions Remaining: {remaining_sessions}"
+)
+
+attendance_df = pd.read_sql(
+    "SELECT * FROM attendance",
+    engine
+)
+
+patient_history = attendance_df[
+    attendance_df["patient_id"] == patient_id
+]
+
+st.subheader("Attendance History")
+
+if patient_history.empty:
+
+    st.info("No attendance records yet")
+
+else:
+
+    st.dataframe(
+        patient_history[
+            ["timestamp"]
+        ]
+    )
 
         sessions_total = patient.iloc[0]["sessions_total"]
         sessions_used = patient.iloc[0]["sessions_used"]
