@@ -1,9 +1,12 @@
+import smtplib
+from email.mime.text import MIMEText
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
 from geopy.distance import geodesic
 from datetime import datetime
 from streamlit_js_eval import streamlit_js_eval
+
 
 # -------------------------
 # CONFIG
@@ -24,12 +27,13 @@ with engine.begin() as conn:
 
     conn.exec_driver_sql("""
     CREATE TABLE IF NOT EXISTS patients (
-        patient_id TEXT PRIMARY KEY,
-        name TEXT,
-        sessions_total INTEGER,
-        sessions_used INTEGER
-    )
-    """)
+    patient_id TEXT PRIMARY KEY,
+    name TEXT,
+    phone TEXT,
+    email TEXT,
+    sessions_total INTEGER,
+    sessions_used INTEGER
+)
 
     conn.exec_driver_sql("""
     CREATE TABLE IF NOT EXISTS attendance (
@@ -90,7 +94,13 @@ elif role == "Admin":
 # =====================================================
 if menu == "Patient Check-In":
 
-    st.title("Physio Attendance System")
+st.set_page_config(
+    page_title="Sheela Physiocare",
+    page_icon="images/logo.png",
+    layout="centered"
+)    
+
+st.title("Physio Attendance System")
 
     patient_id = st.text_input("Enter Patient ID")
 
@@ -218,6 +228,8 @@ elif menu == "Admin Panel":
 
     patient_id = st.text_input("Patient ID")
     name = st.text_input("Patient Name")
+    email = st.text_input("Email")
+    phone = st.text_input("Phone Number")
     sessions_total = st.number_input(
         "Total Sessions",
         min_value=1,
@@ -227,11 +239,13 @@ elif menu == "Admin Panel":
     if st.button("Add Patient"):
 
         new_patient = pd.DataFrame([{
-            "patient_id": patient_id,
-            "name": name,
-            "sessions_total": sessions_total,
-            "sessions_used": 0
-        }])
+    "patient_id": patient_id,
+    "name": name,
+    "phone": phone,
+    "email": email,
+    "sessions_total": sessions_total,
+    "sessions_used": 0
+}])
 
         new_patient.to_sql(
             "patients",
