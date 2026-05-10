@@ -59,15 +59,42 @@ if role == "Admin":
     if password != "physio123":
         st.stop()
 
-menu = st.sidebar.selectbox(
-    "Menu",
-    [
-        "Patient Check-In",
-        "Admin Panel",
-        "Attendance History"
-    ]
+role = st.sidebar.radio(
+    "Login Type",
+    ["Patient", "Admin"]
 )
 
+# -------------------------
+# PATIENT MENU
+# -------------------------
+if role == "Patient":
+
+    menu = st.sidebar.selectbox(
+        "Menu",
+        ["Patient Check-In"]
+    )
+
+# -------------------------
+# ADMIN MENU
+# -------------------------
+else:
+
+    password = st.sidebar.text_input(
+        "Admin Password",
+        type="password"
+    )
+
+    if password != "physio123":
+        st.warning("Enter correct admin password")
+        st.stop()
+
+    menu = st.sidebar.selectbox(
+        "Menu",
+        [
+            "Admin Panel",
+            "Attendance History"
+        ]
+    )
 # =====================================================
 # PATIENT CHECK-IN
 # =====================================================
