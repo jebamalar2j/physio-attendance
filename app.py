@@ -1,6 +1,3 @@
-# redeploy trigger
-
-
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
@@ -8,94 +5,16 @@ from geopy.distance import geodesic
 from datetime import datetime
 from streamlit_js_eval import streamlit_js_eval
 
-# redeploy trigger
-st.write("")
-
-# =====================================================
-# PAGE CONFIG
-# =====================================================
-
 st.set_page_config(
     page_title="Sheela Physiocare",
     layout="centered"
 )
 
-# =====================================================
-# HIDE STREAMLIT MENU
-# =====================================================
-
-hide_streamlit_style = """
-<style>
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-header {
-    visibility: hidden;
-}
-</style>
-"""
-
-st.markdown(
-    hide_streamlit_style,
-    unsafe_allow_html=True
-)
-
-# =====================================================
-# LOGO + TITLE
-# =====================================================
-
-col1, col2, col3 = st.columns([1,2,1])
-
-with col2:
-
-    st.image(
-        "images/logo.png",
-        width=220
-    )
-
-st.markdown(
-    """
-    <h2 style='text-align: center; color: #6F2DA8;'>
-    Sheela Physiocare
-    </h2>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-    <p style='text-align: center; color: #6E6477;'>
-    Physiotherapy Attendance & Session Tracking
-    </p>
-    """,
-    unsafe_allow_html=True
-)
-
-# =====================================================
-# CONFIG
-# =====================================================
-
 CLINIC_LAT = 13.0371531
 CLINIC_LON = 80.2616611
-
 MAX_DISTANCE_METERS = 75
 
-# =====================================================
-# DATABASE
-# =====================================================
-
-engine = create_engine(
-    "sqlite:///clinic.db"
-)
-
-# =====================================================
-# CREATE TABLES
-# =====================================================
+engine = create_engine("sqlite:///clinic.db")
 
 with engine.begin() as conn:
 
@@ -119,10 +38,6 @@ with engine.begin() as conn:
         longitude REAL
     )
     """)
-
-# =====================================================
-# SIDEBAR
-# =====================================================
 
 role = st.sidebar.radio(
     "Select Role",
@@ -152,15 +67,8 @@ else:
 
     else:
 
-        st.warning(
-            "Enter correct admin password"
-        )
-
+        st.warning("Enter correct admin password")
         st.stop()
-
-# =====================================================
-# PATIENT CHECK-IN
-# =====================================================
 
 if menu == "Patient Check-In":
 
@@ -188,17 +96,11 @@ if menu == "Patient Check-In":
     if st.button("Check In"):
 
         if not patient_id:
-
             st.error("Enter Patient ID")
-
             st.stop()
 
         if not location:
-
-            st.error(
-                "Location access required"
-            )
-
+            st.error("Location access required")
             st.stop()
 
         user_lat = location["lat"]
@@ -209,16 +111,8 @@ if menu == "Patient Check-In":
             (user_lat, user_lon)
         ).meters
 
-        st.write(
-            f"Distance from clinic: {distance:.2f} meters"
-        )
-
         if distance > MAX_DISTANCE_METERS:
-
-            st.error(
-                "You are not inside clinic area"
-            )
-
+            st.error("You are not inside clinic area")
             st.stop()
 
         patients_df = pd.read_sql(
@@ -231,66 +125,20 @@ if menu == "Patient Check-In":
         ]
 
         if patient.empty:
-
             st.error("Patient not found")
-
             st.stop()
 
-        st.subheader("Patient Details")
+        sessions_total = patient.iloc[0]["sessions_total"]
+        sessions_used = patient.iloc[0]["sessions_used"]
 
-        st.write(
-            f"Name: {patient.iloc[0]['name']}"
-        )
-
-        remaining_sessions = (
-            patient.iloc[0]['sessions_total']
-            - patient.iloc[0]['sessions_used']
-        )
-
-        st.write(
-            f"Sessions Remaining: {remaining_sessions}"
-        )
+        if sessions_used >= sessions_total:
+            st.error("No sessions remaining")
+            st.stop()
 
         attendance_df = pd.read_sql(
             "SELECT * FROM attendance",
             engine
         )
-
-        patient_history = attendance_df[
-            attendance_df["patient_id"] == patient_id
-        ]
-
-        st.subheader("Attendance History")
-
-        if patient_history.empty:
-
-            st.info(
-                "No attendance records yet"
-            )
-
-        else:
-
-            st.dataframe(
-                patient_history[
-                    ["timestamp"]
-                ]
-            )
-
-        sessions_total = patient.iloc[0][
-            "sessions_total"
-        ]
-
-        sessions_used = patient.iloc[0][
-            "sessions_used"
-        ]
-
-        if sessions_used >= sessions_total:
-
-            st.error(
-                "No sessions remaining"
-            )
-
-            st.stop()
 
         today = datetime.now().date()
 
@@ -306,17 +154,11 @@ if menu == "Patient Check-In":
                 row["patient_id"] == patient_id
                 and row_date == today
             ):
-
                 already_checked = True
-
                 break
 
         if already_checked:
-
-            st.warning(
-                "Already checked in today"
-            )
-
+            st.warning("Already checked in today")
             st.stop()
 
         new_row = pd.DataFrame([{
@@ -333,9 +175,7 @@ if menu == "Patient Check-In":
             index=False
         )
 
-        new_sessions_used = (
-            sessions_used + 1
-        )
+        new_sessions_used = sessions_used + 1
 
         with engine.begin() as conn:
 
@@ -345,38 +185,18 @@ if menu == "Patient Check-In":
             WHERE patient_id = '{patient_id}'
             """)
 
-        remaining = (
-            sessions_total
-            - new_sessions_used
-        )
+        remaining = sessions_total - new_sessions_used
 
         st.success("Attendance marked")
-
-        st.success(
-            f"Sessions remaining: {remaining}"
-        )
-
-# =====================================================
-# ADMIN PANEL
-# =====================================================
+        st.success(f"Sessions remaining: {remaining}")
 
 elif menu == "Admin Panel":
 
     st.title("Admin Panel")
 
-    st.subheader("Add New Patient")
-
-    name = st.text_input(
-        "Patient Name"
-    )
-
-    phone = st.text_input(
-        "Phone Number"
-    )
-
-    email = st.text_input(
-        "Email"
-    )
+    name = st.text_input("Patient Name")
+    phone = st.text_input("Phone Number")
+    email = st.text_input("Email")
 
     sessions_total = st.number_input(
         "Total Sessions",
@@ -386,13 +206,9 @@ elif menu == "Admin Panel":
 
     if st.button("Add Patient"):
 
-        name_part = name[:4].upper()
-
-        phone_part = phone[-4:]
-
         patient_id = (
-            name_part
-            + phone_part
+            name[:4].upper()
+            + phone[-4:]
         )
 
         new_patient = pd.DataFrame([{
@@ -415,23 +231,12 @@ elif menu == "Admin Panel":
             f"Patient added successfully. ID: {patient_id}"
         )
 
-    st.subheader("All Patients")
-
     patients_df = pd.read_sql(
         "SELECT * FROM patients",
         engine
     )
 
-    patients_df["sessions_remaining"] = (
-        patients_df["sessions_total"]
-        - patients_df["sessions_used"]
-    )
-
     st.dataframe(patients_df)
-
-# =====================================================
-# ATTENDANCE HISTORY
-# =====================================================
 
 elif menu == "Attendance History":
 
