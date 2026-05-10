@@ -12,6 +12,26 @@ from streamlit_js_eval import streamlit_js_eval
 # =====================================================
 
 st.set_page_config(
+hide_streamlit_style = """
+<style>
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+</style>
+"""
+
+st.markdown(
+    hide_streamlit_style,
+    unsafe_allow_html=True
+)
     page_title="Sheela Physiocare",
     page_icon="images/logo.png",
     layout="centered"

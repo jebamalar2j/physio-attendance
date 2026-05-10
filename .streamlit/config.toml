@@ -4,3 +4,12 @@ backgroundColor="#FFFFFF"
 secondaryBackgroundColor="#F4ECF8"
 textColor="#2B2233"
 font="sans serif"
+
+[client]
+toolbarMode = "minimal"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
