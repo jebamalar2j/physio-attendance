@@ -44,6 +44,21 @@ with engine.begin() as conn:
 # -------------------------
 # SIDEBAR MENU
 # -------------------------
+role = st.sidebar.radio(
+    "Select Role",
+    ["Patient", "Admin"]
+)
+
+if role == "Admin":
+
+    password = st.sidebar.text_input(
+        "Admin Password",
+        type="password"
+    )
+
+    if password != "physio123":
+        st.stop()
+
 menu = st.sidebar.selectbox(
     "Menu",
     [
