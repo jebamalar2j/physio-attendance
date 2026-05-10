@@ -1,5 +1,3 @@
-import smtplib
-from email.mime.text import MIMEText
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
@@ -15,6 +13,10 @@ st.set_page_config(
     page_title="Sheela Physiocare",
     layout="centered"
 )
+
+# =====================================================
+# HIDE STREAMLIT MENU
+# =====================================================
 
 hide_streamlit_style = """
 <style>
@@ -36,6 +38,7 @@ st.markdown(
     hide_streamlit_style,
     unsafe_allow_html=True
 )
+
 # =====================================================
 # LOGO + TITLE
 # =====================================================
@@ -43,6 +46,7 @@ st.markdown(
 col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
+
     st.image(
         "images/logo.png",
         width=220
@@ -65,36 +69,27 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# -------------------------
+
+# =====================================================
 # CONFIG
-# -------------------------
+# =====================================================
+
 CLINIC_LAT = 13.0371531
 CLINIC_LON = 80.2616611
+
 MAX_DISTANCE_METERS = 75
 
-# -------------------------
-# CONFIG
-# -------------------------
+# =====================================================
+# DATABASE
+# =====================================================
 
-st.set_page_config(
-    page_title="Sheela Physiocare",
-    page_icon="images/logo.png",
-    layout="centered"
+engine = create_engine(
+    "sqlite:///clinic.db"
 )
 
-CLINIC_LAT = 13.0371531
-CLINIC_LON = 80.2616611
-MAX_DISTANCE_METERS = 75
-
-# -------------------------
-# DATABASE
-# -------------------------
-
-engine = create_engine("sqlite:///clinic.db")
-
-# -------------------------
+# =====================================================
 # CREATE TABLES
-# -------------------------
+# =====================================================
 
 with engine.begin() as conn:
 
@@ -119,9 +114,9 @@ with engine.begin() as conn:
     )
     """)
 
-# -------------------------
+# =====================================================
 # SIDEBAR
-# -------------------------
+# =====================================================
 
 role = st.sidebar.radio(
     "Select Role",
@@ -151,7 +146,10 @@ else:
 
     else:
 
-        st.warning("Enter correct admin password")
+        st.warning(
+            "Enter correct admin password"
+        )
+
         st.stop()
 
 # =====================================================
@@ -160,9 +158,11 @@ else:
 
 if menu == "Patient Check-In":
 
-    st.title("Physio Attendance System")
+    st.title("Patient Check-In")
 
-    patient_id = st.text_input("Enter Patient ID")
+    patient_id = st.text_input(
+        "Enter Patient ID"
+    )
 
     location = streamlit_js_eval(
         js_expressions="""
@@ -182,11 +182,17 @@ if menu == "Patient Check-In":
     if st.button("Check In"):
 
         if not patient_id:
+
             st.error("Enter Patient ID")
+
             st.stop()
 
         if not location:
-            st.error("Location access required")
+
+            st.error(
+                "Location access required"
+            )
+
             st.stop()
 
         user_lat = location["lat"]
@@ -197,10 +203,16 @@ if menu == "Patient Check-In":
             (user_lat, user_lon)
         ).meters
 
-        st.write(f"Distance from clinic: {distance:.2f} meters")
+        st.write(
+            f"Distance from clinic: {distance:.2f} meters"
+        )
 
         if distance > MAX_DISTANCE_METERS:
-            st.error("You are not inside clinic area")
+
+            st.error(
+                "You are not inside clinic area"
+            )
+
             st.stop()
 
         patients_df = pd.read_sql(
@@ -213,7 +225,9 @@ if menu == "Patient Check-In":
         ]
 
         if patient.empty:
+
             st.error("Patient not found")
+
             st.stop()
 
         st.subheader("Patient Details")
@@ -244,7 +258,9 @@ if menu == "Patient Check-In":
 
         if patient_history.empty:
 
-            st.info("No attendance records yet")
+            st.info(
+                "No attendance records yet"
+            )
 
         else:
 
@@ -254,11 +270,20 @@ if menu == "Patient Check-In":
                 ]
             )
 
-        sessions_total = patient.iloc[0]["sessions_total"]
-        sessions_used = patient.iloc[0]["sessions_used"]
+        sessions_total = patient.iloc[0][
+            "sessions_total"
+        ]
+
+        sessions_used = patient.iloc[0][
+            "sessions_used"
+        ]
 
         if sessions_used >= sessions_total:
-            st.error("No sessions remaining")
+
+            st.error(
+                "No sessions remaining"
+            )
+
             st.stop()
 
         today = datetime.now().date()
@@ -275,11 +300,17 @@ if menu == "Patient Check-In":
                 row["patient_id"] == patient_id
                 and row_date == today
             ):
+
                 already_checked = True
+
                 break
 
         if already_checked:
-            st.warning("Already checked in today")
+
+            st.warning(
+                "Already checked in today"
+            )
+
             st.stop()
 
         new_row = pd.DataFrame([{
@@ -296,7 +327,9 @@ if menu == "Patient Check-In":
             index=False
         )
 
-        new_sessions_used = sessions_used + 1
+        new_sessions_used = (
+            sessions_used + 1
+        )
 
         with engine.begin() as conn:
 
@@ -306,23 +339,39 @@ if menu == "Patient Check-In":
             WHERE patient_id = '{patient_id}'
             """)
 
-        remaining = sessions_total - new_sessions_used
+        remaining = (
+            sessions_total
+            - new_sessions_used
+        )
 
         st.success("Attendance marked")
-        st.success(f"Sessions remaining: {remaining}")
+
+        st.success(
+            f"Sessions remaining: {remaining}"
+        )
+
 # =====================================================
 # ADMIN PANEL
 # =====================================================
+
 elif menu == "Admin Panel":
 
     st.title("Admin Panel")
 
     st.subheader("Add New Patient")
 
-    patient_id = st.text_input("Patient ID")
-    name = st.text_input("Patient Name")
-    email = st.text_input("Email")
-    phone = st.text_input("Phone Number")
+    name = st.text_input(
+        "Patient Name"
+    )
+
+    phone = st.text_input(
+        "Phone Number"
+    )
+
+    email = st.text_input(
+        "Email"
+    )
+
     sessions_total = st.number_input(
         "Total Sessions",
         min_value=1,
@@ -331,14 +380,23 @@ elif menu == "Admin Panel":
 
     if st.button("Add Patient"):
 
+        name_part = name[:4].upper()
+
+        phone_part = phone[-4:]
+
+        patient_id = (
+            name_part
+            + phone_part
+        )
+
         new_patient = pd.DataFrame([{
-    "patient_id": patient_id,
-    "name": name,
-    "phone": phone,
-    "email": email,
-    "sessions_total": sessions_total,
-    "sessions_used": 0
-}])
+            "patient_id": patient_id,
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "sessions_total": sessions_total,
+            "sessions_used": 0
+        }])
 
         new_patient.to_sql(
             "patients",
@@ -347,7 +405,9 @@ elif menu == "Admin Panel":
             index=False
         )
 
-        st.success("Patient added successfully")
+        st.success(
+            f"Patient added successfully. ID: {patient_id}"
+        )
 
     st.subheader("All Patients")
 
@@ -366,6 +426,7 @@ elif menu == "Admin Panel":
 # =====================================================
 # ATTENDANCE HISTORY
 # =====================================================
+
 elif menu == "Attendance History":
 
     st.title("Attendance History")
