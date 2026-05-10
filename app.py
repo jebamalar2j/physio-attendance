@@ -16,24 +16,41 @@ CLINIC_LON = 80.2616611
 MAX_DISTANCE_METERS = 75
 
 # -------------------------
+# CONFIG
+# -------------------------
+
+st.set_page_config(
+    page_title="Sheela Physiocare",
+    page_icon="images/logo.png",
+    layout="centered"
+)
+
+CLINIC_LAT = 13.0371531
+CLINIC_LON = 80.2616611
+MAX_DISTANCE_METERS = 75
+
+# -------------------------
 # DATABASE
 # -------------------------
+
 engine = create_engine("sqlite:///clinic.db")
 
 # -------------------------
 # CREATE TABLES
 # -------------------------
+
 with engine.begin() as conn:
 
     conn.exec_driver_sql("""
     CREATE TABLE IF NOT EXISTS patients (
-    patient_id TEXT PRIMARY KEY,
-    name TEXT,
-    phone TEXT,
-    email TEXT,
-    sessions_total INTEGER,
-    sessions_used INTEGER
-)
+        patient_id TEXT PRIMARY KEY,
+        name TEXT,
+        phone TEXT,
+        email TEXT,
+        sessions_total INTEGER,
+        sessions_used INTEGER
+    )
+    """)
 
     conn.exec_driver_sql("""
     CREATE TABLE IF NOT EXISTS attendance (
@@ -46,9 +63,6 @@ with engine.begin() as conn:
     """)
 
 # -------------------------
-# SIDEBAR MENU
-# =====================================================
-# -------------------------
 # SIDEBAR
 # -------------------------
 
@@ -57,19 +71,11 @@ role = st.sidebar.radio(
     ["Patient", "Admin"]
 )
 
-# -------------------------
-# PATIENT
-# -------------------------
-
 if role == "Patient":
 
     menu = "Patient Check-In"
 
-# -------------------------
-# ADMIN
-# -------------------------
-
-elif role == "Admin":
+else:
 
     password = st.sidebar.text_input(
         "Admin Password",
@@ -90,17 +96,14 @@ elif role == "Admin":
 
         st.warning("Enter correct admin password")
         st.stop()
+
+# =====================================================
 # PATIENT CHECK-IN
 # =====================================================
+
 if menu == "Patient Check-In":
 
-st.set_page_config(
-    page_title="Sheela Physiocare",
-    page_icon="images/logo.png",
-    layout="centered"
-)    
-
-st.title("Physio Attendance System")
+    st.title("Physio Attendance System")
 
     patient_id = st.text_input("Enter Patient ID")
 
@@ -155,46 +158,44 @@ st.title("Physio Attendance System")
         if patient.empty:
             st.error("Patient not found")
             st.stop()
-# -------------------------
-# PATIENT DETAILS
-# -------------------------
-st.subheader("Patient Details")
 
-st.write(
-    f"Name: {patient.iloc[0]['name']}"
-)
+        st.subheader("Patient Details")
 
-remaining_sessions = (
-    patient.iloc[0]['sessions_total']
-    - patient.iloc[0]['sessions_used']
-)
+        st.write(
+            f"Name: {patient.iloc[0]['name']}"
+        )
 
-st.write(
-    f"Sessions Remaining: {remaining_sessions}"
-)
+        remaining_sessions = (
+            patient.iloc[0]['sessions_total']
+            - patient.iloc[0]['sessions_used']
+        )
 
-attendance_df = pd.read_sql(
-    "SELECT * FROM attendance",
-    engine
-)
+        st.write(
+            f"Sessions Remaining: {remaining_sessions}"
+        )
 
-patient_history = attendance_df[
-    attendance_df["patient_id"] == patient_id
-]
+        attendance_df = pd.read_sql(
+            "SELECT * FROM attendance",
+            engine
+        )
 
-st.subheader("Attendance History")
-
-if patient_history.empty:
-
-    st.info("No attendance records yet")
-
-else:
-
-    st.dataframe(
-        patient_history[
-            ["timestamp"]
+        patient_history = attendance_df[
+            attendance_df["patient_id"] == patient_id
         ]
-    )
+
+        st.subheader("Attendance History")
+
+        if patient_history.empty:
+
+            st.info("No attendance records yet")
+
+        else:
+
+            st.dataframe(
+                patient_history[
+                    ["timestamp"]
+                ]
+            )
 
         sessions_total = patient.iloc[0]["sessions_total"]
         sessions_used = patient.iloc[0]["sessions_used"]
@@ -202,11 +203,6 @@ else:
         if sessions_used >= sessions_total:
             st.error("No sessions remaining")
             st.stop()
-
-        attendance_df = pd.read_sql(
-            "SELECT * FROM attendance",
-            engine
-        )
 
         today = datetime.now().date()
 
@@ -246,6 +242,7 @@ else:
         new_sessions_used = sessions_used + 1
 
         with engine.begin() as conn:
+
             conn.exec_driver_sql(f"""
             UPDATE patients
             SET sessions_used = {new_sessions_used}
@@ -256,7 +253,6 @@ else:
 
         st.success("Attendance marked")
         st.success(f"Sessions remaining: {remaining}")
-
 # =====================================================
 # ADMIN PANEL
 # =====================================================
