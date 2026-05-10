@@ -43,59 +43,49 @@ with engine.begin() as conn:
 
 # -------------------------
 # SIDEBAR MENU
+# =====================================================
 # -------------------------
+# SIDEBAR
+# -------------------------
+
 role = st.sidebar.radio(
     "Select Role",
     ["Patient", "Admin"]
 )
 
-if role == "Admin":
-
-    password = st.sidebar.text_input(
-        "Admin Password",
-        type="password"
-    )
-
-    if password != "physio123":
-        st.stop()
-
-role = st.sidebar.radio(
-    "Login Type",
-    ["Patient", "Admin"]
-)
-
 # -------------------------
-# PATIENT MENU
+# PATIENT
 # -------------------------
+
 if role == "Patient":
 
-    menu = st.sidebar.selectbox(
-        "Menu",
-        ["Patient Check-In"]
-    )
+    menu = "Patient Check-In"
 
 # -------------------------
-# ADMIN MENU
+# ADMIN
 # -------------------------
-else:
+
+elif role == "Admin":
 
     password = st.sidebar.text_input(
         "Admin Password",
         type="password"
     )
 
-    if password != "physio123":
+    if password == "physio123":
+
+        menu = st.sidebar.selectbox(
+            "Menu",
+            [
+                "Admin Panel",
+                "Attendance History"
+            ]
+        )
+
+    else:
+
         st.warning("Enter correct admin password")
         st.stop()
-
-    menu = st.sidebar.selectbox(
-        "Menu",
-        [
-            "Admin Panel",
-            "Attendance History"
-        ]
-    )
-# =====================================================
 # PATIENT CHECK-IN
 # =====================================================
 if menu == "Patient Check-In":
