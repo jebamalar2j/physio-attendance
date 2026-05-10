@@ -7,7 +7,45 @@ from geopy.distance import geodesic
 from datetime import datetime
 from streamlit_js_eval import streamlit_js_eval
 
+# =====================================================
+# PAGE CONFIG
+# =====================================================
 
+st.set_page_config(
+    page_title="Sheela Physiocare",
+    page_icon="images/logo.png",
+    layout="centered"
+)
+
+# =====================================================
+# LOGO + TITLE
+# =====================================================
+
+col1, col2, col3 = st.columns([1,2,1])
+
+with col2:
+    st.image(
+        "images/logo.png",
+        width=220
+    )
+
+st.markdown(
+    """
+    <h2 style='text-align: center; color: #6F2DA8;'>
+    Sheela Physiocare
+    </h2>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <p style='text-align: center; color: #6E6477;'>
+    Physiotherapy Attendance & Session Tracking
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 # -------------------------
 # CONFIG
 # -------------------------
