@@ -1,6 +1,5 @@
 # redeploy trigger
 
-st.write("")
 
 import streamlit as st
 import pandas as pd
@@ -8,6 +7,9 @@ from sqlalchemy import create_engine
 from geopy.distance import geodesic
 from datetime import datetime
 from streamlit_js_eval import streamlit_js_eval
+
+# redeploy trigger
+st.write("")
 
 # =====================================================
 # PAGE CONFIG
