@@ -11,9 +11,9 @@ from streamlit_js_eval import streamlit_js_eval
 # -------------------------
 # CONFIG
 # -------------------------
-CLINIC_LAT = 10.7905
-CLINIC_LON = 78.7047
-MAX_DISTANCE_METERS = 50
+CLINIC_LAT = 13.0371531
+CLINIC_LON = 80.2616611
+MAX_DISTANCE_METERS = 75
 
 # -------------------------
 # DATABASE
